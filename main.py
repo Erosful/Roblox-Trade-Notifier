@@ -1,9 +1,10 @@
-import json,time,datetime #Json, time, and datetime are all inbuilt libraries with python, so you don't need to install them.
+import json,time,datetime
+from this import d #Json, time, and datetime are all inbuilt libraries with python, so you don't need to install them.
 try: #Requests on the other hand, needs to be installed. This just checks to see if you have it installed..
     import requests
-except ImportError: #and if you don't, it'll install it for you!
+except: #and if you don't, it'll install it for you!
     import os
-    os.system('pip install requests')
+    os.system('py -m install requests')
     import requests
 
 with open("config.json","r") as f:
@@ -31,18 +32,22 @@ def sendnotif(tradejson):
                 "description": f"This trade was sent by [{tradejson['user']['name']}](https://www.roblox.com/users/{tradejson['user']['id']}/profile)",
                 "fields": [
                     {
-                        "name": "Requesting", #This might be a bit confusing, sorry! Essentially, I add a ⚠️ if the item is projected, then I post the item name and a link to that item - "\n".join() is just an easier way of sending them all in separate lines
-                        "value": "\n".join(f"{'⚠️ ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']})" for i in tradejson['offers'][0]['userAssets'])+f"\n**Total Value:** {TradeValues[0]}"
+                        "name": "Requesting", #This might be a bit confusing, sorry! Essentially, I add a :warning: if the item is projected, then I post the item name and a link to that item - "\n".join() is just an easier way of sending them all in separate lines
+                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][0]['userAssets'])+f"\n**Total Value:** {TradeValues[0]:,d}"
                     },
                     {
                         "name": "Offering",
-                        "value": "\n".join(f"{'⚠️ ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']})" for i in tradejson['offers'][1]['userAssets'])+f"\n**Total Value:** {TradeValues[1]}"
+                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][1]['userAssets'])+f"\n**Total Value:** {TradeValues[1]:,d}"
+                    },
+                    {
+                        "name": "Evaluation",
+                        "value": f"Value {'Gain' if (TradeValues[1]-TradeValues[0])>0 else 'Loss'}: {abs(TradeValues[1]-TradeValues[0]):,d}\nItem {'Gain' if len(tradejson['offers'][1]['userAssets'])-len(tradejson['offers'][0]['userAssets'])>0 else 'Loss'}: {abs(len(tradejson['offers'][1]['userAssets'])-len(tradejson['offers'][0]['userAssets'])):,d}" 
                     }
                 ], 
                 "thumbnail": {
                     "url": f"https://www.roblox.com/headshot-thumbnail/image?userId={tradejson['user']['id']}&width=100&height=100&format=png"
                 }, #Makes the image URL the avatar of the user who sent me a trade
-                "color": 0x00ff00, #Sets the colour to a lovely green
+                "color": 0x00ff00 if (TradeValues[1]-TradeValues[0]>0) else 0xff0000, #Sets the colour to a lovely green
                 "footer": #Text at the very bottom
                 { 
                     "icon_url": "https://cdn.discordapp.com/icons/548263085614301186/a_bbb4230eb4af483dee66e996fdd67f18.png?size=1024",
@@ -58,9 +63,9 @@ def rolimonitemupdater():
     tempdata = {} #Makes an empty dict, this is where all our itemdetails will be added
     x = requests.get("https://www.rolimons.com/itemapi/itemdetails").json()
     for i in x['items']:
-        tempdata[i] = {
-            "Value": x['items'][i][3] if x['items'][i][3] != -1 else x['items'][i][4], #Rolimons itemdetails API Value
-            "Projected": True if x['items'][i][7] == 1 else False} #True if the projected value reads 1, False if it doesn't
+        tempdata[i] = {}
+        tempdata[i]["Value"] = x['items'][i][3] if x['items'][i][3] != -1 else x['items'][i][4]
+        tempdata[i]["Projected"] = True if x['items'][i][7] == 1 else False #True if the projected value reads 1, False if it doesn't
     with open("RolimonsItems.json","w") as f:
         json.dump(tempdata,f,indent=4)
     print(f"Rolimon Values up to date, last checked at {datetime.datetime.now().strftime('%H:%M:%S')}")
@@ -90,7 +95,7 @@ def refresh_trades():
 while True:
     rolimonitemupdater()
     for i in range(30): #Loop this x amount times, then update rolimons values.. then loop back! (This means we're getting new rolimons values every 5 minutes)
-        try: #Try...Except catches and ignores any errors. If somehow something goes wrong, the program will continue to run.
+        try:
             refresh_trades()
         except:
             pass
