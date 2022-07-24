@@ -35,11 +35,11 @@ def sendnotif(tradejson):
                 "fields": [
                     {
                         "name": "Requesting", #This might be a bit confusing, sorry! Essentially, I add a :warning: if the item is projected, then I post the item name and a link to that item - "\n".join() is just an easier way of sending them all in separate lines
-                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][0]['userAssets'])+f"\n**Robux**: {tradejson['offers'][0]['robux']}\n**Total Value:** {TradeValues[0]:,d}"
+                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][0]['userAssets'])+f"\nRobux: {tradejson['offers'][0]['robux']}\n**Total Value:** {TradeValues[0]:,d}"
                     },
                     {
                         "name": "Offering",
-                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][1]['userAssets'])+f"\n**Robux**: {tradejson['offers'][1]['robux']}\n**Total Value:** {TradeValues[1]:,d}"
+                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][1]['userAssets'])+f"\nRobux: {tradejson['offers'][1]['robux']}\n**Total Value:** {TradeValues[1]:,d}"
                     },
                     {
                         "name": "Evaluation",
