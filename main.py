@@ -22,6 +22,16 @@ def sendnotif(tradejson):
         for i in v['userAssets']:
             TradeValues[a] += rolivalues[str(i['assetId'])]['Value']
         TradeValues[a] += v['robux']
+    OurRobux = tradejson['offers'][0]['robux']
+    TheirRobux = tradejson['offers'][1]['robux']
+    if OurRobux != 0:
+        OurRobux = f"\nRobux: {tradejson['offers'][0]['robux']} ({(tradejson['offers'][0]['robux']//10)*7})"
+    else:
+        OurRobux = ""
+    if TheirRobux != 0:
+        TheirRobux = f"\nRobux: {tradejson['offers'][1]['robux']} ({(tradejson['offers'][1]['robux']//10)*7})"
+    else:
+        TheirRobux = ""
     #With this, be careful what you edit (I advise you look at https://leovoel.github.io/embed-visualizer/ for more info)
     data = {
         "username" : "Trade Notifier", #You don't NECESSARILY need to have this and the avatar_url field, I just felt like including it [You could change the name on the webhook every time]
@@ -35,11 +45,11 @@ def sendnotif(tradejson):
                 "fields": [
                     {
                         "name": "Requesting", #This might be a bit confusing, sorry! Essentially, I add a :warning: if the item is projected, then I post the item name and a link to that item - "\n".join() is just an easier way of sending them all in separate lines
-                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][0]['userAssets'])+f"\nRobux: {tradejson['offers'][0]['robux']}\n\n**Total Value:** {TradeValues[0]:,d}"
+                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][0]['userAssets'])+f"{OurRobux}\n\n**Total Value:** {TradeValues[0]:,d}"
                     },
                     {
                         "name": "Offering",
-                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][1]['userAssets'])+f"\nRobux: {tradejson['offers'][1]['robux']}\n\n**Total Value:** {TradeValues[1]:,d}"
+                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][1]['userAssets'])+f"{TheirRobux}\n\n**Total Value:** {TradeValues[1]:,d}"
                     },
                     {
                         "name": "Evaluation",
