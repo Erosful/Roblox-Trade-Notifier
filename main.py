@@ -37,7 +37,7 @@ def sendnotif(tradejson):
     else:
         TheirRobux = "\nRobux: 0"
     GainOrLoss = [WinEmoji,"Gain"] if (TradeValues[1]-TradeValues[0])>0 else [LoseEmoji,"Loss"]
-    ItemGainOrLoss = [WinEmoji,"Gain"] if len(tradejson['offers'][1]['userAssets'])-len(tradejson['offers'][0]['userAssets']) else [LoseEmoji,"Loss"]
+    ItemGainOrLoss = [WinEmoji,"Gain"] if len(tradejson['offers'][1]['userAssets'])-len(tradejson['offers'][0]['userAssets'])>0 else [LoseEmoji,"Loss"]
 
     #With this, be careful what you edit (I advise you look at https://leovoel.github.io/embed-visualizer/ for more info)
     data = {
