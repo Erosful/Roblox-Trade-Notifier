@@ -3,5 +3,9 @@
     "Cookie": "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_",
     "WinWebhook": "https://discord.com/api/webhooks/XXX/XXXX",
     "LoseWebhook": "https://discord.com/api/webhooks/XXX/XXXX"
-    "Discord ID": 0
+    "Discord ID": 0,
+    "RequestEmoji": ":arrow_up:",
+    "OfferEmoji": ":arrow_down:",
+    "WinEmoji": ":green_square:",
+    "LoseEmoji": ":red_square:"
 }
