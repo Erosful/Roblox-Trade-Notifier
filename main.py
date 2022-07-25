@@ -1,19 +1,3 @@
-import json,time,datetime
-from this import d #Json, time, and datetime are all inbuilt libraries with python, so you don't need to install them.
-try: #Requests on the other hand, needs to be installed. This just checks to see if you have it installed..
-    import requests
-except: #and if you don't, it'll install it for you!
-    import os
-    os.system('py -m install requests')
-    import requests
-
-with open("config.json","r") as f:
-    data = json.load(f)
-cookie = data['Cookie']
-WinWebhook = data['WinWebhook']
-LoseWebhook = data['LoseWebhook']
-DiscordID = data['Discord ID']
-
 def sendnotif(tradejson):
     with open("RolimonsItems.json","r") as f: #I open this every time I start the subroutine because I want the most up-to-date values
         rolivalues = json.load(f)
@@ -45,15 +29,15 @@ def sendnotif(tradejson):
                 "fields": [
                     {
                         "name": "Requesting", #This might be a bit confusing, sorry! Essentially, I add a :warning: if the item is projected, then I post the item name and a link to that item - "\n".join() is just an easier way of sending them all in separate lines
-                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][0]['userAssets'])+f"{OurRobux}\n\n**Total Value:** {TradeValues[0]:,d}"
+                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''}[{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][0]['userAssets'])+f"{OurRobux}\n\n**Total Value:** {TradeValues[0]:,d}"
                     },
                     {
                         "name": "Offering",
-                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''} [{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][1]['userAssets'])+f"{TheirRobux}\n\n**Total Value:** {TradeValues[1]:,d}"
+                        "value": "\n".join(f"{':warning: ' if rolivalues[str(i['assetId'])]['Projected'] else ''}[{i['name']}](https://www.roblox.com/catalog/{i['assetId']}) ({rolivalues[str(i['assetId'])]['Value']:,d})" for i in tradejson['offers'][1]['userAssets'])+f"{TheirRobux}\n\n**Total Value:** {TradeValues[1]:,d}"
                     },
                     {
                         "name": "Evaluation",
-                        "value": f"Value {'Gain' if (TradeValues[1]-TradeValues[0])>0 else 'Loss'}: {abs(TradeValues[1]-TradeValues[0]):,d}\nItem {'Gain' if len(tradejson['offers'][1]['userAssets'])-len(tradejson['offers'][0]['userAssets'])>0 else 'Loss'}: {abs(len(tradejson['offers'][1]['userAssets'])-len(tradejson['offers'][0]['userAssets'])):,d}" 
+                        "value": f"Value {'Gain' if (TradeValues[1]-TradeValues[0])>0 else 'Loss'}: {abs(TradeValues[1]-TradeValues[0]):,d} ({'+' if (TradeValues[1]-TradeValues[0])>=0 else '-'}{round(abs(((TradeValues[0]-TradeValues[1])/TradeValues[1])*100),2)}%)\nItem {'Gain' if len(tradejson['offers'][1]['userAssets'])-len(tradejson['offers'][0]['userAssets'])>0 else 'Loss'}: {abs(len(tradejson['offers'][1]['userAssets'])-len(tradejson['offers'][0]['userAssets'])):,d}" 
                     }
                 ], 
                 "thumbnail": {
@@ -71,45 +55,3 @@ def sendnotif(tradejson):
     url = WinWebhook if (TradeValues[1]-TradeValues[0])>0 else LoseWebhook
     #This ends up looking like this https://gyazo.com/9e27e8579b3e9a8f33bc71ea16e8b64c
     requests.post(url,json=data) #Posts the webhook
-
-def rolimonitemupdater():
-    tempdata = {} #Makes an empty dict, this is where all our itemdetails will be added
-    x = requests.get("https://www.rolimons.com/itemapi/itemdetails").json()
-    for i in x['items']:
-        tempdata[i] = {}
-        tempdata[i]["Value"] = x['items'][i][3] if x['items'][i][3] != -1 else x['items'][i][4]
-        tempdata[i]["Projected"] = True if x['items'][i][7] == 1 else False #True if the projected value reads 1, False if it doesn't
-    with open("RolimonsItems.json","w") as f:
-        json.dump(tempdata,f,indent=4)
-    print(f"Rolimon Values up to date, last checked at {datetime.datetime.now().strftime('%H:%M:%S')}")
-
-def refresh_trades():
-    with open("config.json","r") as f:
-        data = json.load(f)
-    mostrecenttrades = data["MostRecentTrades"] #We see what the most recent logged trades were, so we know what trades we HAVENT seen
-    x = requests.get(
-        "https://trades.roblox.com/v1/trades/Inbound?sortOrder=Asc&limit=10",
-        cookies={".ROBLOSECURITY": cookie} 
-        )
-    trades = x.json()['data']
-    for i in trades:
-        if i['id'] in mostrecenttrades: #Basically checks to see if the id of this trade has already been checked over
-            break #Break completely exits the for loop
-        trade_data = requests.get(
-            f"https://trades.roblox.com/v1/trades/{i['id']}", #Getting the info of the specific trade 
-            cookies={".ROBLOSECURITY": cookie}
-            )
-        sendnotif(trade_data.json())
-    data["MostRecentTrades"] = [i['id'] for i in trades] #Sets the value in the json to the most recent IDS
-    with open("config.json", "w") as f:
-        json.dump(data, f, indent=4)
-    print(f"Trades up to date, last checked at {datetime.datetime.now().strftime('%H:%M:%S')}") #I mainly use this for debugging, and to see if the programs running.
-
-while True:
-    rolimonitemupdater()
-    for i in range(30): #Loop this x amount times, then update rolimons values.. then loop back! (This means we're getting new rolimons values every 5 minutes)
-        try:
-            refresh_trades()
-        except:
-            pass
-        time.sleep(10) #Sleeps for 10 seconds, as we're just sending a single get request this isn't going to be excessive
